@@ -1,0 +1,37 @@
+# Core data manipulation
+numpy>=1.26.0
+pandas>=2.1.0
+
+# Machine learning
+scikit-learn>=1.3.0
+joblib>=1.3.0
+
+# Visualization
+matplotlib>=3.8.0
+seaborn>=0.13.0
+plotly>=5.18.0
+
+# Configuration
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# Deployment
+streamlit>=1.30.0
+
+# Development & tooling
+loguru>=0.7.0
+typer>=0.9.0
+tqdm>=4.66.0
+ipython
+jupyterlab
+notebook
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Linting & formatting
+ruff>=0.1.0
+
+# Editable install of the project package
+-e .
