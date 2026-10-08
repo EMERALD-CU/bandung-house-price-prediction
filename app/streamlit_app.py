@@ -9,7 +9,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from src.config import MODELS_DIR, PROCESSED_DATA_DIR, load_config
+from src.config import PROCESSED_DATA_DIR, load_config
 from src.modeling.predict import predict
 
 # =============================================================================
@@ -74,24 +74,46 @@ st.markdown(
 # Load Artifacts (Cached)
 # =============================================================================
 
+import os
+
+from huggingface_hub import hf_hub_download
+
+# Konfigurasi Hugging Face Hub
+HF_REPO_ID = os.getenv("HF_REPO_ID", "emerald-alpha/bandung-house-price-model")
+HF_TOKEN = os.getenv("HF_TOKEN", None)  # Optional untuk repo public
+
+
 @st.cache_resource
 def load_artifacts():
-    """Load model, metrics, dan dataset referensi dari disk."""
+    """Load model, metrics, dan dataset referensi dari Hugging Face Hub."""
     config = load_config()
 
-    model_path = MODELS_DIR / config["artifacts"]["model_filename"]
-    metrics_path = MODELS_DIR / config["artifacts"]["metrics_filename"]
+    model_filename = config["artifacts"]["model_filename"]
+    metrics_filename = config["artifacts"]["metrics_filename"]
     features_path = PROCESSED_DATA_DIR / "features.csv"
 
-    if not model_path.exists():
+    try:
+        # Download model dari Hugging Face Hub
+        model_path = hf_hub_download(
+            repo_id=HF_REPO_ID,
+            filename=model_filename,
+            token=HF_TOKEN,
+        )
+        metrics_path = hf_hub_download(
+            repo_id=HF_REPO_ID,
+            filename=metrics_filename,
+            token=HF_TOKEN,
+        )
+    except Exception as e:
         st.error(
-            f"Model tidak ditemukan di `{model_path}`. "
-            f"Jalankan `python -m src.modeling.train` terlebih dahulu."
+            f"❌ Gagal mengunduh model dari Hugging Face Hub.\n\n"
+            f"Repo: `{HF_REPO_ID}`\n\n"
+            f"Error: `{e}`"
         )
         st.stop()
 
     model = joblib.load(model_path)
-    metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+    metrics = json.loads(Path(metrics_path).read_text(encoding="utf-8"))
     df = pd.read_csv(features_path) if features_path.exists() else None
 
     return model, metrics, df, config

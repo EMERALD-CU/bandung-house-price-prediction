@@ -35,3 +35,5 @@ ruff>=0.1.0
 
 # Editable install of the project package
 -e .
+
+huggingface_hub>=0.20.0
